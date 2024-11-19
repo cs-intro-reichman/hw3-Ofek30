@@ -29,15 +29,13 @@ public class LoanCalc {
 	// interest rate (as a percentage), the number of periods (n), and the periodical payment.
 	private static double endBalance(double loan, double rate, int n, double payment) 
 	{	
-		double prc=(double)rate/100+1;
+		double prc=1+rate/100;
 		for(int i=0;i<n;i++)
 		{
 			loan=(loan-payment)*prc;
 			
 		}
-		
-
-		
+	
 		return loan;
 	}
 	
@@ -51,13 +49,22 @@ public class LoanCalc {
 		iterationCounter=0;
 		double payment=loan/n;
 		double ans=0;
-		while(Math.abs(ans)>=epsilon)
+		
+		while (true) 
 		{
 			iterationCounter++;
-			ans=endBalance(loan, rate, n,payment );
-			payment += epsilon;
+			ans = endBalance(loan, rate, n, payment);
+	
 			
+			if (Math.abs(ans) < epsilon) 
+			{
+				break;
+			}
+	
+			
+			payment += epsilon;
 		}
+	
 		return payment;
     }
     
