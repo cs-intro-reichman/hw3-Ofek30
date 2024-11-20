@@ -1,4 +1,4 @@
-
+// Computes the periodical payment necessary to pay a given loan.
 public class LoanCalc {
 	
 	static double epsilon = 0.001;  // Approximation accuracy
@@ -14,6 +14,11 @@ public class LoanCalc {
 		int n = Integer.parseInt(args[2]);
 		System.out.println("Loan = " + loan + ", interest rate = " + rate + "%, periods = " + n);
 
+		// Computes the ending balance of the loan, given a periodical payment
+		double payment = 10000;
+		double endBalance = endBalance(loan, rate, n, payment);
+		System.out.println("If your periodical payment is " + payment + ", your ending balance is: " + (int) endBalance);
+		
 		// Computes the periodical payment using brute force search
 		System.out.print("\nPeriodical payment, using brute force: ");
 		System.out.println((int) bruteForceSolver(loan, rate, n, epsilon));
@@ -27,17 +32,12 @@ public class LoanCalc {
 
 	// Computes the ending balance of a loan, given the loan amount, the periodical
 	// interest rate (as a percentage), the number of periods (n), and the periodical payment.
-	private static double endBalance(double loan, double rate, int n, double payment) 
-	{	
-		double prc=1+rate/100+1;
-		for(int i=0;i<n;i++)
-		{
-			loan=(loan-payment)*prc;
-			
+	private static double endBalance(double loan, double rate, int n, double payment) {	
+		double realRate = 1 + rate/100;
+		for (int i=0;i<n;i++) {
+			loan = loan - payment;
+			if (loan >0)	loan = loan * realRate;
 		}
-		
-
-		
 		return loan;
 	}
 	
@@ -46,41 +46,13 @@ public class LoanCalc {
 	// Given: the sum of the loan, the periodical interest rate (as a percentage),
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
-    public static double bruteForceSolver(double loan, double rate, int n, double epsilon) 
-	{
-<<<<<<< Updated upstream
-		iterationCounter=0;
-		double payment=loan/n;
-		double ans=0;
-		while(Math.abs(ans)>=epsilon)
-		{
+    public static double bruteForceSolver(double loan, double rate, int n, double epsilon) { 
+		double payment = 0; 
+    	while (endBalance(loan, rate, n, payment) >0){
+			payment = payment + epsilon;
 			iterationCounter++;
-			ans=endBalance(loan, rate, n,payment );
-			payment += epsilon;
-			
 		}
 		return payment;
-=======
-		iterationCounter = 0;  // Reset iteration counter
-    double payment = epsilon;  // Start with a small initial payment
-    double endBalanceValue;
-
-    // Iterate until the ending balance is close enough to zero
-    while (true) {
-        iterationCounter++;
-        endBalanceValue = endBalance(loan, rate, n, payment);
-
-        // Check if the ending balance is within the acceptable range
-        if (Math.abs(endBalanceValue) < epsilon) {
-            break;
-        }
-
-        // Increment the payment slightly to get closer to the solution
-        payment += epsilon;
-    }
-
-    return payment;
->>>>>>> Stashed changes
     }
     
     // Uses bisection search to compute an approximation of the periodical payment 
@@ -88,32 +60,21 @@ public class LoanCalc {
 	// Given: the sum of the loan, the periodical interest rate (as a percentage),
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
-    public static double bisectionSolver(double loan, double rate, int n, double epsilon) 
-	{
-		iterationCounter=0;
-       double L=0,H=loan;
-	   double payment=0,ans=0;
-	   while(H-L>=epsilon)
-	   {
-		iterationCounter++;
-		payment=(H+L)/2;
-		ans=endBalance(loan, rate, n, payment);
-		if (Math.abs(ans)<epsilon)
-		{
-			break;
+    public static double bisectionSolver(double loan, double rate, int n, double epsilon) {  
+		double payment = 0;
+		double min = 0;
+		double max = loan;
+		iterationCounter = 0;
+		while (endBalance(loan , rate , n , payment)>epsilon || endBalance(loan , rate , n , payment)<0 ) {
+			payment = (max+min)/2;
+			iterationCounter++;
+			if (endBalance(loan, rate, n, payment)<epsilon) {
+				max = payment;
+			}
+			if (endBalance(loan, rate, n, payment)>epsilon) {
+				min = payment;
+			}
 		}
-		else if(ans>0)
-			L=payment;
-		else
-		{
-            H=payment;
-
-		}
-
-	   }
-
-		  
-        
 		return payment;
     }
 }
