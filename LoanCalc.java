@@ -14,11 +14,6 @@ public class LoanCalc {
 		int n = Integer.parseInt(args[2]);
 		System.out.println("Loan = " + loan + ", interest rate = " + rate + "%, periods = " + n);
 
-		// Computes the ending balance of the loan, given a periodical payment
-		double payment = 10000;
-		double endBalance = endBalance(loan, rate, n, payment);
-		System.out.println("If your periodical payment is " + payment + ", your ending balance is: " + (int) endBalance);
-		
 		// Computes the periodical payment using brute force search
 		System.out.print("\nPeriodical payment, using brute force: ");
 		System.out.println((int) bruteForceSolver(loan, rate, n, epsilon));
@@ -46,8 +41,9 @@ public class LoanCalc {
 	// Given: the sum of the loan, the periodical interest rate (as a percentage),
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
-    public static double bruteForceSolver(double loan, double rate, int n, double epsilon) { 
-		double payment = 0; 
+    public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
+		double payment = loan/n; 
+		iterationCounter = 0;
     	while (endBalance(loan, rate, n, payment) >0){
 			payment = payment + epsilon;
 			iterationCounter++;
@@ -61,18 +57,22 @@ public class LoanCalc {
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
     public static double bisectionSolver(double loan, double rate, int n, double epsilon) {  
-		double payment = 0;
-		double min = 0;
+		double payment =0,balance;
+		double min =loan/n;
 		double max = loan;
 		iterationCounter = 0;
-		while (endBalance(loan , rate , n , payment)>epsilon || endBalance(loan , rate , n , payment)<0 ) {
+		while (max-min>epsilon) {
 			payment = (max+min)/2;
+			balance = endBalance(loan, rate, n, payment);
 			iterationCounter++;
-			if (endBalance(loan, rate, n, payment)<epsilon) {
-				max = payment;
+			if (Math.abs(balance)<epsilon) {
+				
 			}
-			if (endBalance(loan, rate, n, payment)>epsilon) {
+			else if (balance>0) {
 				min = payment;
+			}
+			else {
+				max = payment;
 			}
 		}
 		return payment;
